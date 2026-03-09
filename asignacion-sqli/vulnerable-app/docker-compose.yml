@@ -1,0 +1,30 @@
+version: "3.9"
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: vulnerable_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: secureapp
+      MYSQL_USER: appuser
+      MYSQL_PASSWORD: apppass
+    ports:
+      - "3307:3306"
+    volumes:
+      - ./initdb:/docker-entrypoint-initdb.d
+
+  web:
+    build: .
+    container_name: vulnerable_web
+    restart: always
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_USER: appuser
+      DB_PASSWORD: apppass
+      DB_NAME: secureapp
+    ports:
+      - "5000:5000"
