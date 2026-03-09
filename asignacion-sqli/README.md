@@ -30,6 +30,6 @@ docker compose up --build
 Aplicación disponible en: `http://localhost:5001`
 
 ## Detalles de la aplicación
-Esta aplicación es un API simple que hace queries a una base de datos. 
-Para mostrar informacion en pantalla o guardar informacion, se deben introducir los parametros que se muestran en pantalla al iniciar la aplicacion.
+Esta aplicación es un API simple que conecta con una base de datos. 
+Para mostrar información en pantalla o guardar información, se deben introducir los parámetros que se muestran en pantalla al iniciar la aplicacion.
 El parametro vulnerable es `/users?id=1`
