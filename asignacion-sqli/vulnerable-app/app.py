@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 import mysql.connector
 import os
 
@@ -16,14 +16,7 @@ def get_db_connection():
 
 @app.route("/")
 def home():
-    return """
-    <h1>Aplicación vulnerable a SQL Injection</h1>
-    <p>Endpoints:</p>
-    <ul>
-      <li>GET /users?id=1</li>
-      <li>POST /login  (username, password)</li>
-    </ul>
-    """
+    return render_template("index.html")
 
 
 @app.route("/users", methods=["GET"])

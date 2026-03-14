@@ -1,60 +1,66 @@
-# Asignación #3 - Desarrollo de aplicaciones seguras
+# SQL Shield Lab - Asignación #3
+### Universidad Cenfotec
+**Curso:** Seguridad en Bases de Datos  
+**Estudiante:** RICARDO JOSE CHINCHILLA GONZALEZ  
 
-Este repositorio contiene dos versiones de una aplicación web:
+---
 
-- `vulnerable-app/`: versión intencionalmente vulnerable a SQL Injection.
-- `secure-app/`: versión corregida mediante validación de entradas y consultas parametrizadas.
+Este repositorio contiene un laboratorio interactivo para el estudio de vulnerabilidades de **Inyección SQL (SQLi)** y sus métodos de mitigación. El proyecto presenta dos versiones de una aplicación web con una interfaz premium diseñada para facilitar el aprendizaje práctico.
 
-## Tecnologías
-- Python
-- Flask
-- MySQL
-- Docker Compose
+![SQL Shield Lab Dashboard](./screenshots/vulnerable_dashboard.png)
+
+## Estructura del Proyecto
+
+- `vulnerable-app/`: Versión intencionalmente vulnerable a SQL Injection. Utiliza concatenación directa de strings en consultas SQL.
+- `secure-app/`: Versión protegida mediante **Consultas Parametrizadas (Prepared Statements)** y validación de entradas.
+
+## Características de la Nueva Interfaz Premium
+
+- **Dashboard Moderno**: Diseño "Dark Mode" con efectos de glassmorphism y tipografía Inter.
+- **Laboratorio Interactivo**: Guías integradas paso a paso sobre qué buscar y cómo explotar las vulnerabilidades.
+- **Payloads Sugeridos**: Botones de copia rápida para los ataques de inyección más comunes.
+- **Visualizador de Consultas**: Consola de resultados estilo terminal para analizar la información extraída de la base de datos.
+
+## Requisitos
+- Docker y Docker Compose
 
 ## Ejecución
 
-### Versión vulnerable
+### 1. Versión Vulnerable (Puerto 5000)
+Para iniciar el entorno vulnerable:
 ```bash
 cd vulnerable-app
-docker compose up --build
+docker compose up --build -d
 ```
+Accede a: [http://localhost:5000](http://localhost:5000)
 
-Aplicación disponible en: `http://localhost:5000`
-
-### Versión segura
+### 2. Versión Segura (Puerto 5001)
+Para iniciar el entorno protegido:
 ```bash
 cd secure-app
-docker compose up --build
+docker compose up --build -d
 ```
+Accede a: [http://localhost:5001](http://localhost:5001)
 
-Aplicación disponible en: `http://localhost:5001`
+## Guía de Pruebas (App Vulnerable)
 
-## Pruebas de SQL Injection (App Vulnerable)
+### Inyección en Parámetro GET
+Extrae todos los usuarios de la base de datos saltándote el filtro de ID:
+- **Payload**: `1 OR 1=1`
 
-Puedes probar las siguientes inyecciones en la aplicación vulnerable (puerto 5000):
+### Bypass de Login (POST)
+Inicia sesión como administrador sin conocer la contraseña utilizando comentarios SQL:
+- **Username**: `admin' -- `
+- **Password**: (cualquiera)
 
-### 1. Inyección en Parámetro GET (Extraer todos los usuarios)
-Accede a la siguiente URL para obtener todos los registros de la tabla `users` mediante una condición siempre verdadera:
-
-`http://localhost:5000/users?id=1 OR 1=1`
-
-### 2. Bypass de Login (POST)
-Simula un inicio de sesión exitoso sin conocer la contraseña del administrador usando el carácter de comentario (`-- `):
-
-- **URL:** `http://localhost:5000/login`
-- **Body (form-data):**
-  - `username`: `admin' -- `
-  - `password`: `cualquiera`
-
-**Ejemplo con cURL:**
-```bash
-curl -X POST -F "username=admin' -- " -F "password=x" http://localhost:5000/login
-```
-
-### 3. UNION-based Inyección (Extraer nombres de tablas)
-Utiliza `UNION` para extraer información administrativa del esquema de la base de datos:
-
-`http://localhost:5000/users?id=1 UNION SELECT 1, table_name, 'info', 'schema' FROM information_schema.tables`
+### Extracción de Esquema (UNION-based)
+Obtén nombres de las tablas del sistema:
+- **Payload**: `1 UNION SELECT 1, table_name, 'info', 'schema' FROM information_schema.tables`
 
 ## Mitigación (App Segura)
-La versión en `secure-app/` mitiga estos ataques utilizando **consultas parametrizadas (Prepared Statements)**, lo que impide que la entrada del usuario sea interpretada como código SQL. Intenta los mismos ataques en `http://localhost:5001` para verificar que ya no funcionan.
+La versión protegida en `secure-app/` demuestra cómo prevenir estos ataques:
+1.  **Consultas Parametrizadas**: Separa la lógica SQL de los datos del usuario.
+2.  **Validación de Tipos**: Asegura que el ID sea numérico antes de procesarlo.
+3.  **Sanitización**: Previene que caracteres especiales como `'` o `--` alteren la consulta.
+
+Intenta replicar los ataques anteriores en el puerto 5001 para verificar que la aplicación es ahora resiliente.
